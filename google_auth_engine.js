@@ -5,12 +5,9 @@ const _ = require('lodash');
 
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
 const TOKEN_PATH = 'credentials.json';
-const SHEET_ID = '1-SNFF58_6wNs2gyP_9FiTuCnl-lryjyltD019S6NlMU';
-const RANGE = 'Form Responses 1!A1:H'
 
-function googleAuthEngine() {
-  this.getAuth = function(){
-
+function GoogleAuthEngine() {
+  this.authenticateAndRun = function(callBackFunction){
     // Load client secrets from a local file.
     fs.readFile('client_secret.json', (err, content) => {
       if (err) return console.log('Error loading client secret file:', err);
@@ -77,35 +74,32 @@ function googleAuthEngine() {
     function listMajors(auth) {
       const sheets = google.sheets({version: 'v4', auth});
       sheets.spreadsheets.values.get({
-        spreadsheetId: SHEET_ID,
-        range: RANGE,
+        spreadsheetId: process.env.SHEET_ID,
+        range: process.env.RANGE,
       }, (err, {data}) => {
         if (err) return console.log('The API returned an error: ' + err);
         const rows = data.values;
         if (rows.length) {
          let headers = rows[0];
-         let resultString = "{";
+         let resultString = "";
          _.forEach(rows, function(row){
            let element = "{";
            for(var i = 0; i < headers.length; ++i){
              let val = `"${headers[i]}":"${row[i]}",`;
              element += val;
            }
-           element += "}, ";
+           element += "}";
            resultString += `${element},`
          });
-         resultString += "}"
-         return resultString;
+         resultString += ""
+         console.log(resultString);
         } else {
           console.log('No data found.');
         }
       });
     }
-
-
     return {user: 'Auth OK!'};
   }
-
 }
 
-module.exports = googleAuthEngine;
+module.exports = GoogleAuthEngine;
