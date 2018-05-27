@@ -12,8 +12,9 @@ app.get('/', function (request, response) {
   let engine = new GoogleAuthEngine();
   engine.authenticateAndRun(null);
 
-  let reply = {hello:"world"};
+  let reply = {hello: "world"};
   return response.json(reply);
 });
+
 
 app.listen(3000, () => console.log('Example app listening on port 3000!'));

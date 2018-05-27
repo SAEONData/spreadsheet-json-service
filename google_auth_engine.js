@@ -6,6 +6,8 @@ const _ = require('lodash');
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
 const TOKEN_PATH = 'credentials.json';
 
+const Q = require('q');
+
 function GoogleAuthEngine() {
   this.authenticateAndRun = function(callBackFunction){
     // Load client secrets from a local file.
@@ -67,8 +69,6 @@ function GoogleAuthEngine() {
 
 
     /**
-     * Prints the names and majors of students in a sample spreadsheet:
-     * @see https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
      * @param {google.auth.OAuth2} auth The authenticated Google OAuth client.
      */
     function listMajors(auth) {
@@ -76,23 +76,26 @@ function GoogleAuthEngine() {
       sheets.spreadsheets.values.get({
         spreadsheetId: process.env.SHEET_ID,
         range: process.env.RANGE,
-      }, (err, {data}) => {
+      }, (err, data) => {
         if (err) return console.log('The API returned an error: ' + err);
+        console.log(data);
         const rows = data.values;
         if (rows.length) {
-         let headers = rows[0];
-         let resultString = "";
-         _.forEach(rows, function(row){
-           let element = "{";
-           for(var i = 0; i < headers.length; ++i){
-             let val = `"${headers[i]}":"${row[i]}",`;
-             element += val;
-           }
-           element += "}";
-           resultString += `${element},`
-         });
-         resultString += ""
-         console.log(resultString);
+          let headers = rows[0];
+          let resultMap = {};
+          for(var j = 1; j < rows.length; ++j){
+            let row = rows[j];
+            let element = j > 1 ? ',{': '{';
+            for(var i = 0; i < headers.length; ++i){
+              let val = `"${headers[i]}":"${row[i]}"`;
+              val += i >= headers.length ? '': ','
+              element += val;
+            }
+            element += '}';
+            resultString += `${element}`
+          }
+          console.log(result)
+
         } else {
           console.log('No data found.');
         }
