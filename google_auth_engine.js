@@ -76,27 +76,33 @@ function GoogleAuthEngine() {
       sheets.spreadsheets.values.get({
         spreadsheetId: process.env.SHEET_ID,
         range: process.env.RANGE,
-      }, (err, data) => {
-        if (err) return console.log('The API returned an error: ' + err);
-        console.log(data);
-        const rows = data.values;
-        if (rows.length) {
-          let headers = rows[0];
-          let resultMap = {};
-          for(var j = 1; j < rows.length; ++j){
-            let row = rows[j];
-            let element = j > 1 ? ',{': '{';
-            for(var i = 0; i < headers.length; ++i){
-              let val = `"${headers[i]}":"${row[i]}"`;
-              val += i >= headers.length ? '': ','
-              element += val;
-            }
-            element += '}';
-            resultString += `${element}`
-          }
-          console.log(result)
+      }, (err, res) => {
+        if (err) {
+          console.log(res)
+           console.log('The API returned an error: ' + err);
+           return;
+        }
 
-        } else {
+        if (res.data) {
+          const rows = data.values;
+          if (rows.length) {
+            let headers = rows[0];
+            let resultMap = {};
+            for (var j = 1; j < rows.length; ++j) {
+              let row = rows[j];
+              let element = j > 1 ? ',{': '{';
+              for(var i = 0; i < headers.length; ++i){
+                let val = `"${headers[i]}":"${row[i]}"`;
+                val += i >= headers.length ? '': ','
+                element += val;
+              }
+              element += '}';
+              resultString += `${element}`;
+            }
+            console.log(result);
+          }
+        }
+        else {
           console.log('No data found.');
         }
       });
